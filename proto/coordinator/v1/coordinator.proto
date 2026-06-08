@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package coordinator.v1;
+
+option go_package = "github.com/idevcm/Getares/gen/coordinator/v1;coordinatorv1";
+
+// CoordinatorService is implemented by the coordinator.
+// Workers call these methods to join the cluster and send heartbeats.
+service CoordinatorService {
+  // Register is called once by each worker on startup.
+  // Also called automatically after coordinator recovery.
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+
+  // Heartbeat is called every 5 seconds by each worker.
+  // A worker that stops heartbeating is evicted after 15 seconds.
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
+}
+
+message RegisterRequest {
+  string          node_id   = 1; // Unique identifier for this worker node.
+  string          address   = 2; // LAN IP reachable from the coordinator.
+  int32           port      = 3; // gRPC port on which this worker listens.
+  repeated string model_ids = 4; // Models loaded and ready to serve on startup.
+}
+
+message RegisterResponse {
+  bool   accepted = 1;
+  string message  = 2; // Human-readable reason if accepted=false.
+}
+
+message HeartbeatRequest {
+  string node_id = 1;
+}
+
+message HeartbeatResponse {
+  bool ok = 1;
+}

@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package worker.v1;
+
+option go_package = "github.com/idevcm/Getares/gen/worker/v1;workerv1";
+
+// WorkerService is implemented by every worker node.
+// The coordinator calls these methods to check node health
+// and dispatch inference requests.
+service WorkerService {
+  // Infer streams token chunks back to the caller.
+  // One chunk per token — the caller loops until done=true.
+  rpc Infer(InferRequest) returns (stream InferChunk);
+
+  // Health returns the current status and loaded models of this node.
+  // Called by the coordinator on registration and on each heartbeat.
+  rpc Health(HealthRequest) returns (HealthResponse);
+}
+
+// InferRequest carries everything needed to run a single inference.
+message InferRequest {
+  string           session_id  = 1; // Sticky routing key — same session routes to same node.
+  string           model_id    = 2; // Must match a model loaded on this worker.
+  repeated Message messages    = 3; // Conversation history (OpenAI format).
+  float            temperature = 4;
+  int32            max_tokens  = 5;
+}
+
+// Message is one turn in a conversation.
+message Message {
+  string role    = 1; // "system" | "user" | "assistant"
+  string content = 2;
+}
+
+// InferChunk is one streaming token.
+// The caller receives many chunks, each with one token, until done=true.
+message InferChunk {
+  string token         = 1; // The generated token text.
+  bool   done          = 2; // true on the last chunk.
+  string finish_reason = 3; // "stop" | "length" | "error" — set on the last chunk.
+  string error         = 4; // Non-empty only when finish_reason="error".
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string          node_id       = 1;
+  string          status        = 2; // "ready" | "busy" | "error"
+  repeated string loaded_models = 3; // Model IDs currently loaded and ready to serve.
+}

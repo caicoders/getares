@@ -1,22 +1,62 @@
-# Build output
+# ── Build output ──────────────────────────────────────────────────────────────
 bin/
+dist/
 
-# Generated protobuf/gRPC Go code (regenerate with: make proto)
+# ── Generated code — never commit (regenerate with: make proto) ───────────────
 gen/
 
-# Model files — too large for git, store paths in README
+# ── Getares runtime config — contains absolute paths specific to your machine ─
+# Each developer generates their own with: getares init
+getares.yaml
+
+# ── AI Model files — too large for git (multi-GB) ─────────────────────────────
 *.gguf
+*.ggml
 *.bin
 *.safetensors
+*.pt
+*.pth
 
-# Environment and secrets
+# ── Go artifacts ──────────────────────────────────────────────────────────────
+vendor/
+coverage.out
+*.test
+*.prof
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+tmp/
+temp/
+
+# ── Environment and secrets ───────────────────────────────────────────────────
 .env
 .env.local
+.env.*.local
 
-# macOS
+# ── macOS ─────────────────────────────────────────────────────────────────────
 .DS_Store
+.AppleDouble
+.LSOverride
 
-# IDE
-.idea/
+# ── Windows ───────────────────────────────────────────────────────────────────
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ── IDE — VS Code ─────────────────────────────────────────────────────────────
+# Keep .vscode/extensions.json if you want to recommend extensions to contributors
+# but never commit personal settings or launch configs
 .vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.continue/
+
+# ── IDE — JetBrains / GoLand ──────────────────────────────────────────────────
+.idea/
+*.iml
+
+# ── IDE — Vim / Neovim ────────────────────────────────────────────────────────
 *.swp
+*.swo
+*~

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package coordinator.v1;
 
-option go_package = "github.com/idevcm/Getares/gen/coordinator/v1;coordinatorv1";
+option go_package = "github.com/caicoders/getares/gen/coordinator/v1;coordinatorv1";
 
 // CoordinatorService is implemented by the coordinator.
 // Workers call these methods to join the cluster and send heartbeats.

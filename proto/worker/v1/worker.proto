@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package worker.v1;
 
-option go_package = "github.com/idevcm/Getares/gen/worker/v1;workerv1";
+option go_package = "github.com/caicoders/getares/gen/worker/v1;workerv1";
 
 // WorkerService is implemented by every worker node.
 // The coordinator calls these methods to check node health

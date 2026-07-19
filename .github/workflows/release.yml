@@ -45,11 +45,17 @@ jobs:
         with:
           go-version: '1.22'
 
+      - name: Install buf
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Generate proto bindings
+        run: buf generate
+
       - name: Build
         env:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}
-          CGO_ENABLED: 0   # static binary — no libc dependency
+          CGO_ENABLED: 0
         run: |
           go build \
             -ldflags="-s -w -X main.version=${{ github.ref_name }}" \
@@ -90,7 +96,7 @@ jobs:
 
             **Linux:**
             ```bash
-            curl -L https://github.com/idevcm/Getares/releases/download/${{ github.ref_name }}/getares-linux-amd64 -o getares
+            curl -L https://github.com/caicoders/getares/releases/download/${{ github.ref_name }}/getares-linux-amd64 -o getares
             chmod +x getares
             ./getares init
             ./getares start
@@ -98,7 +104,7 @@ jobs:
 
             **macOS (Apple Silicon):**
             ```bash
-            curl -L https://github.com/idevcm/Getares/releases/download/${{ github.ref_name }}/getares-macos-arm64 -o getares
+            curl -L https://github.com/caicoders/getares/releases/download/${{ github.ref_name }}/getares-macos-arm64 -o getares
             chmod +x getares
             ./getares init
             ./getares start
@@ -106,7 +112,7 @@ jobs:
 
             **Windows (PowerShell):**
             ```powershell
-            curl -L https://github.com/idevcm/Getares/releases/download/${{ github.ref_name }}/getares-windows-amd64.exe -o getares.exe
+            curl -L https://github.com/caicoders/getares/releases/download/${{ github.ref_name }}/getares-windows-amd64.exe -o getares.exe
             .\getares.exe init
             .\getares.exe start
             ```

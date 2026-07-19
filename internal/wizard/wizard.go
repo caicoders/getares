@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -182,6 +183,7 @@ func askModelSelection(suggestions []ModelSuggestion) (path, id string, err erro
 		fmt.Println()
 	}
 
+	options = append(options, "Open canirun.ai for more model recommendations")
 	options = append(options, "Enter model path manually")
 
 	var modelChoice string
@@ -190,6 +192,14 @@ func askModelSelection(suggestions []ModelSuggestion) (path, id string, err erro
 		Options: options,
 	}, &modelChoice); err != nil {
 		return "", "", err
+	}
+
+	if modelChoice == "Open canirun.ai for more model recommendations" {
+		if err := openURL("https://www.canirun.ai/"); err != nil {
+			warn.Printf("  Could not open the browser automatically: %v\n", err)
+			warn.Println("  Please visit https://www.canirun.ai/ manually.")
+		}
+		return askModelSelection(suggestions)
 	}
 
 	if modelChoice == "Enter model path manually" {
@@ -258,7 +268,7 @@ func printHeader() {
   ║   Interactive setup wizard                   ║
   ╚═══════════════════════════════════════════════╝`)
 	gray.Println("  Generates getares.yaml in the current directory.")
-	gray.Println("  Run 'getares start' when done.\n")
+	gray.Println("  Run 'getares start' when done.")
 }
 
 func printHardwareSummary(hw HardwareInfo) {
@@ -273,6 +283,27 @@ func printHardwareSummary(hw HardwareInfo) {
 		}
 	}
 	fmt.Println()
+	gray.Println("  Tip: for broader model compatibility guidance, visit https://www.canirun.ai/")
+	fmt.Println()
+}
+
+func openURL(rawURL string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start", "", rawURL}
+	case "darwin":
+		cmd = "open"
+		args = []string{rawURL}
+	default:
+		cmd = "xdg-open"
+		args = []string{rawURL}
+	}
+
+	return exec.Command(cmd, args...).Start()
 }
 
 func printDownloadInstructions(s ModelSuggestion, savePath string) {
@@ -297,7 +328,7 @@ func printDownloadInstructions(s ModelSuggestion, savePath string) {
 func printNextSteps(cfg *config.Config) {
 	lanIP := outboundLANIP()
 
-	green.Println("\n  ✓ Configuration saved to getares.yaml\n")
+	green.Println("\n  ✓ Configuration saved to getares.yaml")
 	cyan.Println("  ── Next steps ─────────────────────────────────────────────")
 
 	switch cfg.Role {
@@ -361,7 +392,7 @@ func printNextSteps(cfg *config.Config) {
 
 	fmt.Println()
 	gray.Println("  Edit getares.yaml to change settings.")
-	gray.Println("  Re-run 'getares init' to start over.\n")
+	gray.Println("  Re-run 'getares init' to start over.")
 }
 
 // printWindowsFirewallInstructions prints the exact PowerShell commands

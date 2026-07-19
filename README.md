@@ -89,9 +89,14 @@ sudo mv getares /usr/local/bin/
 
 Getares uses `llama-server` from [llama.cpp](https://github.com/ggerganov/llama.cpp) to run models locally.
 
-**🐧 Arch Linux / Omarchy:**
+**🐧 Arch Linux:**
 ```bash
 sudo pacman -Sy llama-cpp
+```
+
+**🐧 Fedora:**
+```bash
+sudo dnf install -y llama-cpp
 ```
 
 **🐧 Debian / Ubuntu:**
@@ -119,13 +124,7 @@ llama-server --version
 
 ### Step 3 — Get a model
 
-Getares requires a `.gguf` model file. Recommended options by hardware:
-
-| Hardware | Model | Size |
-|---|---|---|
-| 6 GB VRAM | Llama-3.1-8B-Q4_K_M | 4.7 GB |
-| 16 GB RAM (CPU) | Phi-3-mini-Q4 | 2.4 GB |
-| 128 GB unified RAM | Llama-3.1-70B-Q4_K_M | 40 GB |
+Getares requires a `.gguf` model file. A good place to compare which models fit your hardware is [canirun.ai](https://www.canirun.ai/), which shows which models run well or poorly based on your CPU/GPU/RAM specs.
 
 **Download Phi-3-mini (works on any hardware):**
 ```bash

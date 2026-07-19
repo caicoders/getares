@@ -137,7 +137,7 @@ func askWorkerConfig(cfg *config.Config, role string) error {
 		if err := survey.AskOne(&survey.Input{
 			Message: "Coordinator address (IP:port):",
 			Default: "localhost:9090",
-			Help:    "IP and port of the coordinator machine. Example: 192.168.1.10:9090",
+			Help:    "IP and port of the coordinator machine. Example: coordinator.example.com:9090",
 		}, &coordAddr); err != nil {
 			return err
 		}
@@ -223,7 +223,7 @@ func askManualModelPath() (path, id string, err error) {
 	var modelPath string
 	if err := survey.AskOne(&survey.Input{
 		Message: "Full path to your .gguf file:",
-		Help:    "Example: /home/user/models/phi3.gguf  or  C:\\models\\phi3.gguf",
+		Help:    "Example: /path/to/your/model.gguf  or  C:\\models\\model.gguf",
 	}, &modelPath, survey.WithValidator(func(val interface{}) error {
 		p := val.(string)
 		if home, err := os.UserHomeDir(); err == nil {

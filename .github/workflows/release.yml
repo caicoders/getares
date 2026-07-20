@@ -1,0 +1,124 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}/${{ matrix.arch }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - os: linux
+            arch: amd64
+            binary: getares
+            asset: getares-linux-amd64
+
+          - os: linux
+            arch: arm64
+            binary: getares
+            asset: getares-linux-arm64
+
+          - os: windows
+            arch: amd64
+            binary: getares.exe
+            asset: getares-windows-amd64.exe
+
+          - os: darwin
+            arch: arm64
+            binary: getares
+            asset: getares-macos-arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Install buf
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Generate proto bindings
+        run: buf generate
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: 0
+        run: |
+          go build \
+            -ldflags="-s -w -X main.version=${{ github.ref_name }}" \
+            -o ${{ matrix.binary }} \
+            ./cmd/getares
+
+      - name: Rename binary
+        run: mv ${{ matrix.binary }} ${{ matrix.asset }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: ${{ matrix.asset }}
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+          merge-multiple: true
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Getares ${{ github.ref_name }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') }}
+          body: |
+            ## Getares ${{ github.ref_name }}
+
+            ### Quick start (no Go required)
+
+            **Linux:**
+            ```bash
+            curl -L https://github.com/caicoders/getares/releases/download/${{ github.ref_name }}/getares-linux-amd64 -o getares
+            chmod +x getares
+            ./getares init
+            ./getares start
+            ```
+
+            **macOS (Apple Silicon):**
+            ```bash
+            curl -L https://github.com/caicoders/getares/releases/download/${{ github.ref_name }}/getares-macos-arm64 -o getares
+            chmod +x getares
+            ./getares init
+            ./getares start
+            ```
+
+            **Windows (PowerShell):**
+            ```powershell
+            curl -L https://github.com/caicoders/getares/releases/download/${{ github.ref_name }}/getares-windows-amd64.exe -o getares.exe
+            .\getares.exe init
+            .\getares.exe start
+            ```
+
+            ### Requirements
+            - `llama-server` on PATH ([llama.cpp releases](https://github.com/ggerganov/llama.cpp/releases))
+            - A `.gguf` model file (`getares init` will guide you)
+
+          files: dist/*
